@@ -1,3 +1,17 @@
+data "aws_vpc" "application_vpc" {
+  filter {
+    name   = "tag:Name"
+    values = ["app_vpc"]
+  }
+  }
+
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.application_vpc.id]
+  }
+}
+
 # Create an ECS cluster
 resource "aws_ecs_cluster" "data-cluster" {
   name = "realtime-data-cluster"
@@ -5,7 +19,7 @@ resource "aws_ecs_cluster" "data-cluster" {
 
 resource "aws_security_group" "ecs_sg" {
   name   = "ecs-sg"
-  vpc_id = data.aws_vpc.default.id
+  vpc_id = data.aws_vpc.application_vpc.id
 
   ingress {
     from_port   = 80
@@ -24,7 +38,7 @@ resource "aws_security_group" "ecs_sg" {
 # Security group for monitoring (Prometheus & Grafana)
 resource "aws_security_group" "monitoring_sg" {
   name   = "monitoring-sg"
-  vpc_id = data.aws_vpc.default.id
+  vpc_id = data.aws_vpc.application_vpc.id
 
   ingress {
     from_port   = 9090
@@ -80,7 +94,7 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "kinesis:PutRecord",
           "kinesis:PutRecords"
         ],
-        Resource = module.kinesis.stream_arn,
+        Resource = module.kinesis.kinesis_stream_arn,
         Effect   = "Allow"
       }
     ]
@@ -118,8 +132,8 @@ resource "aws_ecs_task_definition" "app" {
         }
       ],
       environment = [
-        { name = "DYNAMODB_TABLE", value = module.dynamodb.table_name },
-        { name = "KINESIS_STREAM", value = module.kinesis.stream_name }
+        { name = "DYNAMODB_TABLE", value = module.dynamodb.dynamodb_table_name }, 
+        { name = "KINESIS_STREAM", value = output.kinesis_stream_name }
       ],
       logConfiguration = {
         logDriver = "awslogs",

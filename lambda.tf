@@ -13,7 +13,7 @@ resource "aws_lambda_function" "realtime_data_consume" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE = aws_dynamodb_table.realtime-data-table.name
+      DYNAMODB_TABLE = module.dynamodb.dynamodb_table_name
     }
   }
 

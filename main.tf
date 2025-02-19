@@ -1,35 +1,33 @@
 
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+resource "aws_vpc" "application_vpc" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+  Name = "app_vpc"
   }
 }
 
-module "kinesis" {
-  source = "./kinesis"
+resource "aws_subnet" "application_subnet" {
+  vpc_id     = aws_vpc.application_vpc.id
+  cidr_block = "10.0.0.0/24"
 }
 
+module "alb" {
+  source = "./modules/alb"
+}
 module "dynamodb" {
-  source = "./dynamodb"
+  source = "./modules/dynamodb"
 }
-
-module "lambda" {
-  source = "./lambda"
-}
-
-module "iam" {
-  source = "./iam"
-}
-
-module "monitoring" {
-  source = "./monitoring"
-}
-# Include the ECS, Prometheus, and Grafana definitions 
 module "ecs" {
-  source = "./ecs"
+  source = "./modules/ecs"
 }
+module "monitoring" {
+  source = "./modules/monitoring"
+}
+module "route53" {
+  source = "./modules/route53"
+}
+
+
+
+
+
