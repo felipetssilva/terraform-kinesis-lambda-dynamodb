@@ -80,6 +80,10 @@ resource "aws_efs_file_system" "prometheus" {
   }
 }
 
+resource "aws_efs_access_point" "prometheus-efs-access_point" {
+  file_system_id = aws_efs_file_system.prometheus.id
+  
+}
 
 resource "aws_ecs_service" "prometheus_service" {
   name            = "prometheus-service"

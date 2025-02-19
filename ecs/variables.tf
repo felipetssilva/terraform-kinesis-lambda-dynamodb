@@ -1,5 +1,5 @@
 variable "app_image" {
-    default = "elestio/wordpress:latest"
+    default = "ozoski/custom-python-app:latest"
   
 }
 

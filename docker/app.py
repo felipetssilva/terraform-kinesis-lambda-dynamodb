@@ -3,7 +3,6 @@ import boto3
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-
 # Environment variables set from Terraform/ECS container definition
 dynamodb_table = os.getenv('DYNAMODB_TABLE')
 kinesis_stream = os.getenv('KINESIS_STREAM')

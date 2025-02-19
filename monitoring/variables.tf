@@ -1,5 +1,5 @@
 variable "prometheus_image" {
-  default = "prom/prometheus:latest"
+  default = "ozoski/custom-prometheus:latest"
 }
 
 variable "aws_region" {
