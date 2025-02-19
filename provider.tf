@@ -3,12 +3,10 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "5.87.0"
-      region = "us-east-1"
-
     }
   }
   backend "s3" {
-    bucket = "s3-backend-state"
+    bucket = "s3-backend-state-tf"
     key    = "s3-backup"
     region = "us-east-1"
   }
