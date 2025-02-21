@@ -13,3 +13,15 @@ variable "grafana_image" {
 variable "grafana_admin_password" {
   default = "admin"
 }
+
+variable "ecs_cluster_id" {
+  type = string
+}
+
+variable "ecs_security_group_id" {
+  type = string
+}
+
+variable "ecs_task_role_arn" {
+  type = string
+}

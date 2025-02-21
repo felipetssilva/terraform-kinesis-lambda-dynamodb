@@ -6,10 +6,10 @@ resource "aws_lambda_function" "realtime_data_consume" {
   handler          = "realtime_data_consume.lambda_handler"
   runtime          = "python3.9"
   timeout          = 10
-  role             = aws_iam_role.lambda_execution_role.arn
+  role             = var.aws_iam_role_name
 
   # Define the mapping between the Lambda function and the Kinesis stream
-  depends_on = [aws_iam_policy_attachment.lambda_execution_policy_attachment]
+  depends_on = ["${lambda_execution_attachment}"]
 
   environment {
     variables = {
@@ -24,8 +24,8 @@ resource "aws_lambda_function" "realtime_data_consume" {
 
 # Provides a Lambda event source mapping. This allows Lambda functions to get events from Kinesis
 resource "aws_lambda_event_source_mapping" "realtime-data-mapping" {
-  event_source_arn  = aws_kinesis_stream.realtime-data-stream.arn
-  function_name     = aws_lambda_function.realtime_data_consume.arn
+  event_source_arn  = var.kinesis_stream_arn
+  function_name     = aws_lambda_function.realtime_data_consume.function_name
   starting_position = "LATEST"
 }
 

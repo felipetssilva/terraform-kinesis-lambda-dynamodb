@@ -5,7 +5,7 @@ data "aws_vpc" "application_vpc" {
   }
   }
 
-data "aws_subnets" "public" {
+data "aws_subnet" "public" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.application_vpc.id]
@@ -86,7 +86,7 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "dynamodb:UpdateItem",
           "dynamodb:BatchWriteItem"
         ],
-        Resource = module.dynamodb.dynamodb_table_arn,
+        Resource = var.dynamodb_table_arn,
         Effect   = "Allow"
       },
       {
@@ -94,7 +94,7 @@ resource "aws_iam_policy" "ecs_task_policy" {
           "kinesis:PutRecord",
           "kinesis:PutRecords"
         ],
-        Resource = module.kinesis.kinesis_stream_arn,
+        Resource = var.kinesis_stream_arn,
         Effect   = "Allow"
       }
     ]
@@ -122,7 +122,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode([
     {
       name      = "app-container",
-      image     = var.app_image,  # e.g., "yourrepo/app:latest" pushed to ECR or Docker Hub
+      image     = var.app_image, 
       essential = true,
       portMappings = [
         {
@@ -132,8 +132,8 @@ resource "aws_ecs_task_definition" "app" {
         }
       ],
       environment = [
-        { name = "DYNAMODB_TABLE", value = module.dynamodb.dynamodb_table_name }, 
-        { name = "KINESIS_STREAM", value = output.kinesis_stream_name }
+        { name = "DYNAMODB_TABLE", value = var.dynamo_table_name }, 
+        { name = "KINESIS_STREAM", value = var.kinesis_stream_name }
       ],
       logConfiguration = {
         logDriver = "awslogs",
@@ -149,13 +149,13 @@ resource "aws_ecs_task_definition" "app" {
 
 resource "aws_ecs_service" "app_service" {
   name            = "app-service"
-  cluster         = aws_ecs_cluster.this.id
+  cluster         = aws_ecs_cluster.data-cluster.name
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = data.aws_subnets.default.ids
+    subnets          = data.aws_subnet.default.id
     assign_public_ip = true
     security_groups  = [aws_security_group.ecs_sg.id]
   }

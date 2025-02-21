@@ -102,7 +102,7 @@ resource "aws_efs_access_point" "prometheus-efs-access_point" {
 
 resource "aws_ecs_service" "prometheus_service" {
   name            = "prometheus-service"
-  cluster         = module.ecs.ecs_cluster_id
+  cluster         = var.ecs_cluster_id
   task_definition = aws_ecs_task_definition.prometheus.arn
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -110,7 +110,7 @@ resource "aws_ecs_service" "prometheus_service" {
   network_configuration {
     subnets          = data.aws_subnet.public.id
     assign_public_ip = true
-    security_groups  = ["${module.ecs.ecs_security_group_id}"]
+    security_groups  = ["${var.ecs_security_group_id}"]
   }
 }
 
@@ -124,7 +124,7 @@ resource "aws_ecs_task_definition" "grafana" {
   network_mode             = "awsvpc"
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = module.ecs.ecs_task_role_arn
+  execution_role_arn       = var.ecs_task_role_arn
   task_role_arn            = module.ecs.ecs
 
   container_definitions = jsonencode([
@@ -162,7 +162,7 @@ resource "aws_ecs_service" "grafana_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = data.aws_subnets.default.ids
+    subnets          = data.aws_subnet.default.ids
     assign_public_ip = true
     security_groups  = ["${module.ecs.ecs_security_group_id}"]
   }

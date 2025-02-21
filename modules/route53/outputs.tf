@@ -1,15 +1,14 @@
 output "route53_zone" {
-    value = aws_route53_zone.main.name
+  value = var.route53_zone
 }
 
 output "route53_zone_id" {
-    value = aws_route53_zone.main.zone_id
+  value = var.route53_zone_id
 }
 output "prometheus_domain" {
-    value = aws_route53_record.prometheus.name  
+ value = var.prometheus_domain
 }
 
 output "grafana_domain" {
-    value = aws_route53_record.grafana.name
-  
+value = var.grafana_domain  
 }

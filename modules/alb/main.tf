@@ -6,7 +6,7 @@ data "aws_vpc" "application_vpc" {
   }
   }
 
-data "aws_subnets" "public" {
+data "aws_subnet" "public" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.application_vpc.id]
@@ -47,7 +47,7 @@ resource "aws_lb" "monitoring" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = data.aws_subnets.public.ids
+  subnets            = data.aws_subnet.public.id
 }
 
 # Target group for Prometheus (port 9090)
@@ -96,7 +96,7 @@ resource "aws_lb_listener_rule" "prometheus_rule" {
 
   condition {
     host_header {
-      values = ["${module.route53.prometheus_domain}"]
+      values = ["${var.prometheus_domain}"]
     }
   }
 }
@@ -113,7 +113,7 @@ resource "aws_lb_listener_rule" "grafana_rule" {
 
   condition {
     host_header {
-      values = ["${module.route53.grafana_domain}"]
+      values = ["${var.grafana_domain}"]
     }
   }
 }
