@@ -23,9 +23,55 @@ resource "aws_vpc" "application_vpc" {
   }
 }
 
-resource "aws_subnet" "application_subnet" {
-  vpc_id     = aws_vpc.application_vpc.id
-  cidr_block = "10.0.0.0/24"
+resource "aws_subnet" "application_subnet_1" {
+  vpc_id            = aws_vpc.application_vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "${var.aws_region}a"
+
+  tags = {
+    Name = "app_subnet_1"
+  }
+}
+
+resource "aws_subnet" "application_subnet_2" {
+  vpc_id            = aws_vpc.application_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "${var.aws_region}b"
+
+  tags = {
+    Name = "app_subnet_2"
+  }
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.application_vpc.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.application_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "main"
+  }
+}
+
+resource "aws_route_table_association" "subnet_1" {
+  subnet_id      = aws_subnet.application_subnet_1.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_2" {
+  subnet_id      = aws_subnet.application_subnet_2.id
+  route_table_id = aws_route_table.main.id
 }
 
 module "alb" {
@@ -33,8 +79,7 @@ module "alb" {
   prometheus_domain = var.prometheus_domain
   grafana_domain    = var.grafana_domain
   vpc_id            = aws_vpc.application_vpc.id
-  subnets           = [aws_subnet.application_subnet.id]
-
+  subnets           = [aws_subnet.application_subnet_1.id, aws_subnet.application_subnet_2.id]
 
 }
 
@@ -53,7 +98,7 @@ module "ecs" {
   kinesis_stream_name = module.kinesis.kinesis_stream_name
   ecs_task_role_arn   = module.ecs.ecs_task_role_arn
   vpc_id              = aws_vpc.application_vpc.id
-  subnets             = [aws_subnet.application_subnet.id]
+  subnets           = [aws_subnet.application_subnet_1.id, aws_subnet.application_subnet_2.id]
 
 }
 module "monitoring" {
@@ -62,7 +107,7 @@ module "monitoring" {
   ecs_security_group = module.ecs.ecs_security_group
   ecs_task_role_arn  = module.ecs.ecs_task_role_arn
   vpc_id             = aws_vpc.application_vpc.id
-  subnets            = [aws_subnet.application_subnet.id]
+  subnets           = [aws_subnet.application_subnet_1.id, aws_subnet.application_subnet_2.id]
 
 }
 
