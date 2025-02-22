@@ -6,7 +6,7 @@ resource "aws_lambda_function" "realtime_data_consume" {
   handler          = "realtime_data_consume.lambda_handler"
   runtime          = "python3.9"
   timeout          = 10
-  role             = var.aws_iam_role_name
+  role             = var.aws_iam_role_arn
 
   # Define the mapping between the Lambda function and the Kinesis stream
   depends_on = [var.kinesis_stream_arn]

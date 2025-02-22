@@ -26,3 +26,11 @@ variable "kinesis_stream_name" {
 variable "ecs_task_role_arn" {
     type = string
 }
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "subnets" {
+  type = list(string)
+}

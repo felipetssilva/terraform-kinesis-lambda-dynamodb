@@ -1,17 +1,3 @@
-data "aws_vpc" "application_vpc" {
-  filter {
-    name   = "tag:Name"
-    values = ["app_vpc"]
-  }
-  }
-
-data "aws_subnet" "public" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.application_vpc.id]
-  }
-}
-
 
 #############################
 # PROMETHEUS CONTAINER DEFINITION
@@ -108,7 +94,7 @@ resource "aws_ecs_service" "prometheus_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = data.aws_subnet.public.id
+    subnets          = var.subnets
     assign_public_ip = true
     security_groups  = ["${var.ecs_security_group}"]
   }
@@ -162,7 +148,7 @@ resource "aws_ecs_service" "grafana_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = data.aws_subnet.public.id
+    subnets          = var.subnets
     assign_public_ip = true
     security_groups  = ["${var.ecs_security_group}"]
   }

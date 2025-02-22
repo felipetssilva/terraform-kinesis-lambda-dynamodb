@@ -19,7 +19,7 @@ variable "lambda_function_name" {
 
 }
 
-variable "aws_iam_role_name" {
+variable "aws_iam_role_arn" {
   type = string
 }
 

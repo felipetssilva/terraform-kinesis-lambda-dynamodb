@@ -25,3 +25,10 @@ variable "ecs_security_group" {
 variable "ecs_task_role_arn" {
   type = string
 }
+variable "vpc_id" {
+  type = string
+}
+
+variable "subnets" {
+  type = list(string)
+}

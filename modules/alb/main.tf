@@ -1,23 +1,8 @@
-# Data source to fetch default VPC and public subnets (adjust as needed)
-data "aws_vpc" "application_vpc" {
-  filter {
-    name   = "tag:Name"
-    values = ["app_vpc"]
-  }
-  }
-
-data "aws_subnet" "public" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.application_vpc.id]
-  }
-}
-
 # Create a security group for the ALB
 resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
   description = "Allow HTTP and HTTPS inbound"
-  vpc_id      = data.aws_vpc.application_vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 80
@@ -47,7 +32,7 @@ resource "aws_lb" "monitoring" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = data.aws_subnet.public.id
+  subnets            = var.subnets
 }
 
 # Target group for Prometheus (port 9090)
@@ -55,7 +40,7 @@ resource "aws_lb_target_group" "prometheus_tg" {
   name        = "prometheus-tg"
   port        = 9090
   protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.application_vpc.id
+  vpc_id      = var.vpc_id
   target_type = "ip"
 }
 
@@ -64,7 +49,7 @@ resource "aws_lb_target_group" "grafana_tg" {
   name        = "grafana-tg"
   port        = 3000
   protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.application_vpc.id
+  vpc_id      = var.vpc_id
   target_type = "ip"
 }
 
