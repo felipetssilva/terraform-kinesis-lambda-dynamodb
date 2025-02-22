@@ -30,11 +30,14 @@ resource "aws_subnet" "application_subnet" {
 
 module "alb" {
   source            = "./modules/alb"
-  prometheus_domain = module.route53.prometheus_domain
-  grafana_domain    = module.route53.grafana_domain
+  prometheus_domain = var.prometheus_domain
+  grafana_domain    = var.grafana_domain
 }
 module "dynamodb" {
-  source = "./modules/dynamodb"
+  source              = "./modules/dynamodb"
+  dynamodb_table_name   = module.dynamodb.dynamodb_table_name
+  dynamodb_table_arn    = module.dynamodb.dynamodb_table_arn
+  
 
 }
 module "ecs" {
@@ -43,29 +46,47 @@ module "ecs" {
   kinesis_stream_arn  = module.kinesis.kinesis_stream_arn
   dynamo_table_name   = module.dynamodb.dynamodb_table_name
   kinesis_stream_name = module.kinesis.kinesis_stream_name
+  ecs_task_role_arn   = module.ecs.ecs_task_role_arn
 
 }
 module "monitoring" {
-  source                = "./modules/monitoring"
-  ecs_cluster_id        = module.ecs.ecs_cluster_id
-  ecs_security_group_id = module.ecs.ecs_security_group_id
-  ecs_task_role_arn     = module.ecs.ecs_task_role_arn
+  source             = "./modules/monitoring"
+  ecs_cluster_id     = module.ecs.ecs_cluster_id
+  ecs_security_group = module.ecs.ecs_security_group
+  ecs_task_role_arn  = module.ecs.ecs_task_role_arn
+
 }
 
 module "route53" {
   source = "./modules/route53"
+  route53_zone = module.alb.route53_zone
+  route53_zone_id = module.alb.route53_zone_id
+  prometheus_domain = var.prometheus_domain
+  grafana_domain    = var.grafana_domain
 
+}
+
+module "iam" {
+  source                      = "./modules/iam"
+  aws_iam_role_name           = module.iam.aws_iam_role_name
+  lambda_execution_attachment = module.iam.lambda_execution_attachment
+  dynamodb_table_arn          = module.dynamodb.dynamodb_table_arn
 }
 
 module "kinesis" {
   source = "./modules/kinesis"
+  kinesis_stream_arn = module.kinesis.kinesis_stream_arn
+  kinesis_stream_name = module.kinesis.kinesis_stream_name
+
 }
 
 module "lambda" {
   source                      = "./modules/lambda"
   kinesis_stream_arn          = module.kinesis.kinesis_stream_arn
+  aws_iam_role_name           = module.iam.aws_iam_role_name
   lambda_execution_attachment = module.iam.lambda_execution_attachment
   dynamodb_table_name         = module.dynamodb.dynamodb_table_name
+  lambda_function_name        = module.lambda.lambda_function_name
 }
 
 

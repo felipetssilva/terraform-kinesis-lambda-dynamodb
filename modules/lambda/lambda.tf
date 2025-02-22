@@ -9,11 +9,11 @@ resource "aws_lambda_function" "realtime_data_consume" {
   role             = var.aws_iam_role_name
 
   # Define the mapping between the Lambda function and the Kinesis stream
-  depends_on = ["${lambda_execution_attachment}"]
+  depends_on = [var.kinesis_stream_arn]
 
   environment {
     variables = {
-      DYNAMODB_TABLE = module.dynamodb.dynamodb_table_name
+      DYNAMODB_TABLE = var.dynamodb_table_name
     }
   }
 

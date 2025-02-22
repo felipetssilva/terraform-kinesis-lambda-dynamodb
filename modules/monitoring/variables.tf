@@ -18,7 +18,7 @@ variable "ecs_cluster_id" {
   type = string
 }
 
-variable "ecs_security_group_id" {
+variable "ecs_security_group" {
   type = string
 }
 

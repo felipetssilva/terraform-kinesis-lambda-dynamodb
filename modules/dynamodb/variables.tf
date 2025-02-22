@@ -9,5 +9,10 @@ variable "lambda_filename" {
 }
 
 variable "dynamodb_table_name" {
-  default = "aws_dynamodb_table.realtime-data-table.name"
-  }
+  type = string
+
+}  
+variable "dynamodb_table_arn" {
+  type = string
+
+}  

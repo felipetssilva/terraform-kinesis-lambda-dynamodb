@@ -16,9 +16,7 @@ variable "lambda_filename" {
 
 variable "kinesis_stream_name" {
   type = string
-  default = "aws_kinesis_stream.realtime-data-stream.name"
 }
 variable "kinesis_stream_arn" {
   type = string
-  default = "aws_kinesis_stream.realtime-data-stream.arn"
 }

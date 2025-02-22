@@ -96,7 +96,7 @@ resource "aws_lb_listener_rule" "prometheus_rule" {
 
   condition {
     host_header {
-      values = ["${var.prometheus_domain}"]
+      values = [var.prometheus_domain]
     }
   }
 }
@@ -113,7 +113,7 @@ resource "aws_lb_listener_rule" "grafana_rule" {
 
   condition {
     host_header {
-      values = ["${var.grafana_domain}"]
+      values = [var.grafana_domain]
     }
   }
 }

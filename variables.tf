@@ -10,3 +10,13 @@ variable "lambda_filename" {
   description = "Filename of the lambda code"
   default     = "realtime_data_consume"
 }
+
+variable "prometheus_domain" {
+  type        = string
+  description = "Domain name for Prometheus"
+}
+
+variable "grafana_domain" {
+  type        = string
+  description = "Domain name for Grafana"
+}
