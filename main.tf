@@ -6,7 +6,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "s3-backend-state-tf2"
+    bucket = "s3-backend-state-tf"
     key    = "s3-backup"
     region = "us-east-1"
   }
